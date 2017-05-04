@@ -23,10 +23,14 @@ namespace PCController
         private static StreamWriter tcpWriter = null;
 
         public static int src, dst;
-        public static int[] step = new int[3];
-        public static int[] time = new int[3];
+      //  public static int[] step = new int[3];
+      //  public static int[] time = new int[3];
         public static string cassNo = "";
-
+        public static int[,] record_stage = new int[6,3];
+        public static int[,] record_time = new int[6,3];
+        public static int[] record_wafer = new int[6];
+        public static int now = 0;
+        
         public static bool isConnected()
         {
             if (tcpClient == null)
@@ -121,6 +125,7 @@ namespace PCController
         {
             string command, answer = "~Ack";
             string[] para, para2;
+    
 
             // first handShake
             command = getCmd();
@@ -131,13 +136,26 @@ namespace PCController
             // initial src, dst, cass number, & steps
             src = (para2[0].ElementAt(6) - '0') * 10 
                     + (para2[0].ElementAt(7) - '0');
+            record_wafer[now] = src;
             dst = (para2[4].ElementAt(6) - '0') * 10
                     + (para2[4].ElementAt(7) - '0');
             cassNo += (src / 10);
             cassNo += (src % 10);
 
             for (int i = 0; i < 3; i++)
-                step[i] = para2[i+1].ElementAt(0) - 'A' + 1;
+            {
+                record_stage[now,i] = para2[i + 1].ElementAt(0) - 'A' + 1;
+            }
+            for(int i = 0; i < 3; i++)
+            {
+                record_time[now,i] = para2[i + 1].ElementAt(2) - '0';
+                if (para2[i+1].Length == 4)
+                {
+                    record_time[now,i] *= 10;
+                    record_time[now,i] += para2[i + 1].ElementAt(3) - '0';
+                }
+                
+            }
             
             for (int i=1; i<para.Length; i++)
                 answer += "," + para[i];
@@ -199,44 +217,32 @@ namespace PCController
             }
 
             handShake();
+            handShake();
+            handShake();
+            handShake();
+            handShake();
+            handShake();
 
             /* 0 : GET_START
              * 1 : GET_COMP
              * 2 : PUT_START
              * 3 : PUT_COMP */
 
-            sentEvent(0, 0);
-            sentEvent(1, 0);
-
-            //-----------------
-            sentEvent(2, step[0]);
-            sentEvent(3, step[0]);
-            sentEvent(0, step[0]);
-            sentEvent(1, step[0]);
-
-            //----------------
-            sentEvent(2, step[1]);
-            sentEvent(3, step[1]);
-            sentEvent(0, step[1]);
-            sentEvent(1, step[1]);
-            
-            //----------------
-            sentEvent(2, step[2]);
-            sentEvent(3, step[2]);
-            sentEvent(0, step[2]);
-            sentEvent(1, step[2]);
-
-            //-----------------
-            sentEvent(2, 7);
-            sentEvent(3, 7);
-
+            // sentEvent(OPCODE, STAGE);   
+            // getStageTime(STAGE,WAFER_NUM);  
 
             tcpWriter.Close();
             tcpReader.Close();
         }
 
 
-
+        public int getStageTime(int stage,int wafer)
+        {
+            int i;
+            for (i = 0; i < 6; i++)
+                if(record_wafer[i] == wafer)    break;
+            return record_time[i,stage];
+        }
 
 
         private static void connectionErrorHandler()
