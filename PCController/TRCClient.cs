@@ -156,7 +156,8 @@ namespace PCController
                 }
                 
             }
-            
+            now++;
+
             for (int i=1; i<para.Length; i++)
                 answer += "," + para[i];
 
@@ -176,24 +177,28 @@ namespace PCController
             sentCmd(answer);
         }
 
-        public static void sentEvent(int opCode, int location)
+        public static int sentEvent(int opCode, int location, int waferNum, int cassNum)
         {
+            int accept = 0;
             string[] op = { "GetWaferStart", "GetWaferCompleted",
                             "PutWaferStart", "PutWaferCompleted" };
             string evt = "~Evt,";
-            string cass = "W" + cassNo;
+            string wafer = "W" ;
             string[] loc = {"CassA", "A", "B", "C", "D", "E", "F", "CassB" };
             string target;
+            wafer += waferNum / 10;
+            wafer += waferNum % 10;
 
             target = loc[location];
-            if (location == 0)      target += "-" + src / 10 + src % 10;
-            else if (location == 7) target += "-" + dst / 10 + dst % 10;
-            evt = evt + op[opCode] + "," + cass + "," + target + "@";
+            if (location == 0)      target += "-" + cassNum / 10 + cassNum % 10;
+            else if (location == 7) target += "-" + cassNum / 10 + cassNum % 10;
+            evt = evt + op[opCode] + "," + wafer + "," + target + "@";
             sentCmd(evt);
-            getResponse();
+            accept = getResponse();
+            return accept;
         }
 
-        public static void getResponse()
+        public static int getResponse()
         {
             string command;
             string[] para;
@@ -203,9 +208,14 @@ namespace PCController
             para = command.Split(',');
             string reject = para.ElementAt(para.Length-1);
             if (para.Length == 4) mesPrintln("Completed");
-            else if (reject.Equals("0@")) mesPrintln("Accept");
+            else if (reject.Equals("0@"))
+            {
+                mesPrintln("Accept");
+                return 1;
+            }
             else mesPrintln("Reject");
-            Thread.Sleep(1000);
+            return 0;
+            // Thread.Sleep(1000);
         }
 
         public static void communicate()
