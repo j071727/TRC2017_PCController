@@ -218,14 +218,13 @@ namespace PCController
             // Thread.Sleep(1000);
         }
 
-        public static void communicate()
+        public static void init()
         {
             if (!isConnected())
             {
                 connectionErrorHandler();
                 return;
             }
-
             handShake();
             handShake();
             handShake();
@@ -240,9 +239,6 @@ namespace PCController
 
             // sentEvent(OPCODE, STAGE);   
             // getStageTime(STAGE,WAFER_NUM);  
-
-            tcpWriter.Close();
-            tcpReader.Close();
         }
 
 
@@ -254,6 +250,11 @@ namespace PCController
             return record_time[i,stage];
         }
 
+        public void finish()
+        {
+            tcpWriter.Close();
+            tcpReader.Close();
+        }
 
         private static void connectionErrorHandler()
         {
