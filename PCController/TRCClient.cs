@@ -26,9 +26,12 @@ namespace PCController
       //  public static int[] step = new int[3];
       //  public static int[] time = new int[3];
         public static string cassNo = "";
-        public static int[,] record_stage = new int[6,3];
-        public static int[,] record_time = new int[6,3];
+       // public static int[,] record_stage = new int[6,3];
+        public static int[,] record_stages = new int[6,6];
+        public static int[,] record_times = new int [6,6];
+       // public static int[,] record_time = new int[6,3];
         public static int[] record_wafer = new int[6];
+        public static int[] record_waferb = new int[6];
         public static int now = 0;
         
         public static bool isConnected()
@@ -124,7 +127,7 @@ namespace PCController
         public static void handShake()
         {
             string command, answer = "~Ack";
-            string[] para, para2;
+            string[] para, para2,para3,para4,para5;
     
 
             // first handShake
@@ -132,6 +135,9 @@ namespace PCController
             mesPrintln(command);
             para = command.Split(',');
             para2 = para[3].Split(';');
+            para3 = para2[1].Split('|'); //
+            para4 = para2[2].Split('|');
+            para5 = para2[3].Split('|');
 
             // initial src, dst, cass number, & steps
             src = (para2[0].ElementAt(6) - '0') * 10 
@@ -139,23 +145,52 @@ namespace PCController
             record_wafer[now] = src;
             dst = (para2[4].ElementAt(6) - '0') * 10
                     + (para2[4].ElementAt(7) - '0');
+            record_waferb[now] = dst;
             cassNo += (src / 10);
             cassNo += (src % 10);
+            
+            int time_tmp = para3[(para3.Length) - 1].ElementAt(2) - '0';
+            if (para3[(para3.Length) - 1].Length == 4)
+            {
+                time_tmp *= 10;
+                time_tmp += para3[(para3.Length) - 1].ElementAt(3) - '0';
+            }
+            for (int i = 0; i < para3.Length; i++)
+            {
+                int tmp = para3[i].ElementAt(0) - 'A';
+                record_stages[now,tmp] = 1;
+                record_times[now, tmp] = time_tmp;  
+            }
 
-            for (int i = 0; i < 3; i++)
+            time_tmp = para4[(para4.Length) - 1].ElementAt(2) - '0';
+            if (para4[(para4.Length) - 1].Length == 4)
             {
-                record_stage[now,i] = para2[i + 1].ElementAt(0) - 'A' + 1;
+                time_tmp *= 10;
+                time_tmp += para4[(para4.Length) - 1].ElementAt(3) - '0';
             }
-            for(int i = 0; i < 3; i++)
+            for (int i = 0; i < para4.Length; i++)
             {
-                record_time[now,i] = para2[i + 1].ElementAt(2) - '0';
-                if (para2[i+1].Length == 4)
-                {
-                    record_time[now,i] *= 10;
-                    record_time[now,i] += para2[i + 1].ElementAt(3) - '0';
-                }
-                
+                int tmp = para4[i].ElementAt(0) - 'A';
+                record_stages[now, tmp] = 2;
+                record_times[now, tmp] = time_tmp;
             }
+
+            time_tmp = para5[(para5.Length) - 1].ElementAt(2) - '0';
+            if (para5[(para5.Length) - 1].Length == 4)
+            {
+                time_tmp *= 10;
+                time_tmp += para5[(para5.Length) - 1].ElementAt(3) - '0';
+            }
+            for (int i = 0; i < para5.Length; i++)
+            {
+                int tmp = para5[i].ElementAt(0) - 'A';
+                record_stages[now, tmp] = 3;
+                record_times[now, tmp] = time_tmp;
+            }
+           /* for(int i = 0;i<6;i++)
+              {
+                  mesPrint(record_times[0, i].ToString() + " ");
+              }*/
             now++;
 
             for (int i=1; i<para.Length; i++)
@@ -242,13 +277,13 @@ namespace PCController
         }
 
 
-        public int getStageTime(int stage,int wafer)
+        /*public int getStageTime(int stage,int wafer)
         {
             int i;
             for (i = 0; i < 6; i++)
                 if(record_wafer[i] == wafer)    break;
             return record_time[i,stage];
-        }
+        }*/
 
         public void finish()
         {

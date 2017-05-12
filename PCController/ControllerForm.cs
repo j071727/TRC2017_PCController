@@ -289,7 +289,7 @@ namespace PCController
         private void bt_TRCCommStart_Click(object sender, EventArgs e)
         {
             mesPrintln("Starting TRC communication...");
-            ThreadsController.addThreadAndStartByFunc(TRCClient.communicate);
+            ThreadsController.addThreadAndStartByFunc(TRCClient.init);
 
         }
     }
