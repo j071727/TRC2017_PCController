@@ -136,63 +136,94 @@ namespace PCController
             para = command.Split(',');
             para2 = para[3].Split(';');
             para3 = para2[1].Split('|'); //
-            para4 = para2[2].Split('|');
-            para5 = para2[3].Split('|');
-
-            // initial src, dst, cass number, & steps
-            src = (para2[0].ElementAt(6) - '0') * 10 
-                    + (para2[0].ElementAt(7) - '0');
+            src = (para2[0].ElementAt(6) - '0') * 10
+                        + (para2[0].ElementAt(7) - '0');
             record_wafer[now] = src;
-            dst = (para2[4].ElementAt(6) - '0') * 10
-                    + (para2[4].ElementAt(7) - '0');
-            record_waferb[now] = dst;
+            
             cassNo += (src / 10);
             cassNo += (src % 10);
-            
-            int time_tmp = para3[(para3.Length) - 1].ElementAt(2) - '0';
-            if (para3[(para3.Length) - 1].Length == 4)
+            if (para2.Length == 5)
             {
-                time_tmp *= 10;
-                time_tmp += para3[(para3.Length) - 1].ElementAt(3) - '0';
-            }
-            for (int i = 0; i < para3.Length; i++)
-            {
-                int tmp = para3[i].ElementAt(0) - 'A';
-                record_stages[now,tmp] = 1;
-                record_times[now, tmp] = time_tmp;  
-            }
+                para4 = para2[2].Split('|');
+                para5 = para2[3].Split('|');
+                
+                // initial src, dst, cass number, & steps
+                /* src = (para2[0].ElementAt(6) - '0') * 10
+                         + (para2[0].ElementAt(7) - '0');
+                 record_wafer[now] = src;*/
+                 dst = (para2[4].ElementAt(6) - '0') * 10
+                         + (para2[4].ElementAt(7) - '0');
+                 record_waferb[now] = dst;
+                 /*cassNo += (src / 10);
+                 cassNo += (src % 10);*/
 
-            time_tmp = para4[(para4.Length) - 1].ElementAt(2) - '0';
-            if (para4[(para4.Length) - 1].Length == 4)
-            {
-                time_tmp *= 10;
-                time_tmp += para4[(para4.Length) - 1].ElementAt(3) - '0';
-            }
-            for (int i = 0; i < para4.Length; i++)
-            {
-                int tmp = para4[i].ElementAt(0) - 'A';
-                record_stages[now, tmp] = 2;
-                record_times[now, tmp] = time_tmp;
-            }
+                int time_tmp = para3[(para3.Length) - 1].ElementAt(2) - '0';
+                if (para3[(para3.Length) - 1].Length == 4)
+                {
+                    time_tmp *= 10;
+                    time_tmp += para3[(para3.Length) - 1].ElementAt(3) - '0';
+                }
+                for (int i = 0; i < para3.Length; i++)
+                {
+                    int tmp = para3[i].ElementAt(0) - 'A';
+                    record_stages[now, tmp] = 1;
+                    record_times[now, tmp] = time_tmp;
+                }
 
-            time_tmp = para5[(para5.Length) - 1].ElementAt(2) - '0';
-            if (para5[(para5.Length) - 1].Length == 4)
-            {
-                time_tmp *= 10;
-                time_tmp += para5[(para5.Length) - 1].ElementAt(3) - '0';
-            }
-            for (int i = 0; i < para5.Length; i++)
-            {
-                int tmp = para5[i].ElementAt(0) - 'A';
-                record_stages[now, tmp] = 3;
-                record_times[now, tmp] = time_tmp;
-            }
-           /* for(int i = 0;i<6;i++)
-              {
-                  mesPrint(record_times[0, i].ToString() + " ");
-              }*/
-            now++;
+                time_tmp = para4[(para4.Length) - 1].ElementAt(2) - '0';
+                if (para4[(para4.Length) - 1].Length == 4)
+                {
+                    time_tmp *= 10;
+                    time_tmp += para4[(para4.Length) - 1].ElementAt(3) - '0';
+                }
+                for (int i = 0; i < para4.Length; i++)
+                {
+                    int tmp = para4[i].ElementAt(0) - 'A';
+                    record_stages[now, tmp] = 2;
+                    record_times[now, tmp] = time_tmp;
+                }
 
+                time_tmp = para5[(para5.Length) - 1].ElementAt(2) - '0';
+                if (para5[(para5.Length) - 1].Length == 4)
+                {
+                    time_tmp *= 10;
+                    time_tmp += para5[(para5.Length) - 1].ElementAt(3) - '0';
+                }
+                for (int i = 0; i < para5.Length; i++)
+                {
+                    int tmp = para5[i].ElementAt(0) - 'A';
+                    record_stages[now, tmp] = 3;
+                    record_times[now, tmp] = time_tmp;
+                }
+                /* for(int i = 0;i<6;i++)
+                   {
+                       mesPrint(record_times[0, i].ToString() + " ");
+                   }*/
+                now++;
+            }
+            else
+            {
+                dst = (para2[7].ElementAt(6) - '0') * 10
+                         + (para2[7].ElementAt(7) - '0');
+                record_waferb[now] = dst;
+
+                int time_tmp = para2[1].ElementAt(2) - '0';
+                if (para2[1].Length == 4)
+                {
+                    time_tmp *= 10;
+                    time_tmp += para2[1].ElementAt(3) - '0';
+                }
+                for (int i = 0; i < 6; i++)
+                {
+                    record_stages[now, i] = 1;
+                    record_times[now, i] = time_tmp;
+                }
+                /*for(int i = 0;i<6;i++)
+                  {
+                      mesPrint(record_times[0, i].ToString() + " ");
+                  }*/
+                now++;
+            }
             for (int i=1; i<para.Length; i++)
                 answer += "," + para[i];
 
